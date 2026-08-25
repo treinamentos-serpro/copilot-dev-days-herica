@@ -1,92 +1,267 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8"/>
+    <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Soc Ops — Social Bingo</title>
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
     <link rel="icon" type="image/png" th:href="@{/favicon.png}"/>
     <style>
-        /* active-state tweaks that need pseudo-class selectors */
-        .tile-active:active { background-color: #f3f4f6 !important; }
-        .accent-active:active { background-color: #3b82f6 !important; }
+        /* Enhanced animations for modern redesign */
+        @keyframes fadeInSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes popScale {
+            0% {
+                transform: scale(0.8) rotate(-5deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.15) rotate(0deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes celebrationPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        @keyframes tileStagger {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(168, 85, 247, 0.8);
+            }
+        }
+
+        /* ── active-state tweaks that need pseudo-class selectors ── */
+        .tile-active:active {
+            background-color: #dbeafe !important;
+            transform: scale(0.95) !important;
+        }
+
+        .btn-cta:active {
+            transform: scale(0.98) !important;
+            box-shadow: 0 2px 4px rgba(168, 85, 247, 0.3) !important;
+        }
+
+        /* ── smooth transitions for interactive elements ── */
+        button {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Stagger animation for grid cells */
+        #gridContainer > button {
+            animation: tileStagger 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        #gridContainer > button:nth-child(1) { animation-delay: 0ms; }
+        #gridContainer > button:nth-child(2) { animation-delay: 30ms; }
+        #gridContainer > button:nth-child(3) { animation-delay: 60ms; }
+        #gridContainer > button:nth-child(4) { animation-delay: 90ms; }
+        #gridContainer > button:nth-child(5) { animation-delay: 120ms; }
+        #gridContainer > button:nth-child(6) { animation-delay: 60ms; }
+        #gridContainer > button:nth-child(7) { animation-delay: 90ms; }
+        #gridContainer > button:nth-child(8) { animation-delay: 120ms; }
+        #gridContainer > button:nth-child(9) { animation-delay: 150ms; }
+        #gridContainer > button:nth-child(10) { animation-delay: 180ms; }
+        #gridContainer > button:nth-child(11) { animation-delay: 120ms; }
+        #gridContainer > button:nth-child(12) { animation-delay: 150ms; }
+        #gridContainer > button:nth-child(13) { animation-delay: 180ms; }
+        #gridContainer > button:nth-child(14) { animation-delay: 210ms; }
+        #gridContainer > button:nth-child(15) { animation-delay: 240ms; }
+        #gridContainer > button:nth-child(16) { animation-delay: 180ms; }
+        #gridContainer > button:nth-child(17) { animation-delay: 210ms; }
+        #gridContainer > button:nth-child(18) { animation-delay: 240ms; }
+        #gridContainer > button:nth-child(19) { animation-delay: 270ms; }
+        #gridContainer > button:nth-child(20) { animation-delay: 300ms; }
+        #gridContainer > button:nth-child(21) { animation-delay: 240ms; }
+        #gridContainer > button:nth-child(22) { animation-delay: 270ms; }
+        #gridContainer > button:nth-child(23) { animation-delay: 300ms; }
+        #gridContainer > button:nth-child(24) { animation-delay: 330ms; }
+        #gridContainer > button:nth-child(25) { animation-delay: 360ms; }
+
+        /* Marked cell celebration animation */
+        .tile-marked {
+            animation: popScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Victory modal celebration */
+        .victory-modal {
+            animation: popScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .victory-title {
+            animation: celebrationPulse 1.5s ease-in-out infinite;
+        }
+
+        .header-glow {
+            animation: glow 2s ease-in-out infinite;
+        }
     </style>
 </head>
-<body class="h-full">
+<body>
 
 <!-- ============================================================= -->
-<!--  LOBBY — visible before a game starts                          -->
+<!--  LOBBY — Vibrant entry point with animated background         -->
 <!-- ============================================================= -->
-<div id="lobbyView" class="flex flex-col items-center justify-center min-h-full p-6 bg-gray-50">
-    <div class="text-center max-w-sm">
-        <h1 class="text-4xl font-bold text-gray-900 mb-2">Soc Ops</h1>
-        <p class="text-lg text-gray-600 mb-8">Social Bingo</p>
+<div id="lobbyView" class="lobby-container">
+    <!-- Animated gradient background -->
+    <div class="absolute inset-0 -z-10">
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-100 via-blue-50 to-pink-50"></div>
+        <div class="absolute top-0 -left-40 w-80 h-80 bg-gradient-to-br from-purple-200 to-transparent rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-none"></div>
+        <div class="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200 to-transparent rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-none"></div>
+    </div>
 
-        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 mb-8">
-            <h2 class="font-semibold text-gray-800 mb-3">How to play</h2>
-            <ul class="text-left text-gray-600 text-sm space-y-2">
-                <li>• Find people who match the questions</li>
-                <li>• Tap a square when you find a match</li>
-                <li>• Get 5 in a row to win!</li>
-            </ul>
+    <main class="lobby-content">
+        <!-- Logo Section -->
+        <div class="brand-mark">
+            <div class="brand-mark-icon" aria-hidden="true">SO</div>
+            <span class="brand-name">Soc Ops / Social Bingo</span>
+        </div>
+        <p class="eyebrow">Dinâmica para eventos</p>
+        <h1 class="hero-title">Encontre conexões. Complete sua cartela.</h1>
+        <p class="hero-copy">Um bingo social para colocar as pessoas em movimento, iniciar conversas e tornar cada encontro mais memorável.</p>
+
+        <!-- Game Rules Card -->
+        <section class="rule-panel" aria-labelledby="rulesTitle">
+            <h2 id="rulesTitle" class="sr-only">Como jogar</h2>
+            <article class="rule"><span class="rule-number">01</span><div><h2>Converse</h2><p>Encontre alguém que combine com cada frase.</p></div></article>
+            <article class="rule"><span class="rule-number">02</span><div><h2>Marque</h2><p>Selecione a casa quando encontrar uma conexão.</p></div></article>
+            <article class="rule"><span class="rule-number">03</span><div><h2>Complete</h2><p>Feche uma linha de cinco casas para vencer.</p></div></article>
+        </section>
         </div>
 
-        <button onclick="launchGame()"
-                class="w-full bg-accent text-white font-semibold py-4 px-8 rounded-lg text-lg accent-active transition-colors">
-            Start Game
+        <!-- CTA Button -->
+        <button id="launchButton" onclick="launchGame()" class="primary-action">
+            <span>Iniciar jogo</span><span aria-hidden="true">→</span>
         </button>
-    </div>
+        <p id="launchError" class="error-message" role="alert" style="display:none"></p>
+        <p class="lobby-note">Sem cadastro · Ideal para encontros presenciais</p>
+    </main>
 </div>
 
 <!-- ============================================================= -->
-<!--  ACTIVE GAME — board, header, optional bingo banner            -->
+<!--  ACTIVE GAME — Dynamic board with modern styling              -->
 <!-- ============================================================= -->
-<div id="activeView" class="flex flex-col min-h-full bg-gray-50" style="display:none">
+<div id="activeView" class="game-container" style="display:none">
 
-    <!-- top bar -->
-    <header class="flex items-center justify-between p-3 bg-white border-b border-gray-200">
-        <button onclick="retreatToLobby()"
-                class="text-gray-500 text-sm px-3 py-1\.5 rounded tile-active">
-            &#8592; Back
-        </button>
-        <h1 class="font-bold text-gray-900">Soc Ops</h1>
-        <div class="w-16"></div>
+    <!-- Header Bar -->
+    <header class="game-header">
+        <div class="header-inner">
+            <button onclick="retreatToLobby()" class="back-button"><span class="back-arrow" aria-hidden="true">←</span> Voltar
+            </button>
+
+            <div class="game-heading">
+                <h1>Soc Ops</h1>
+                <p id="statusText">Pronto para começar?</p>
+            </div>
+
+            <div id="progressBadge" class="progress-badge">
+                <span id="markedCount">0</span>/<span id="totalCount">25</span>
+                <span class="progress-label">marcadas</span>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-track" role="progressbar" aria-label="Progresso da cartela" aria-valuemin="0" aria-valuemax="25" aria-valuenow="0">
+            <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+        </div>
     </header>
 
-    <!-- hint -->
-    <p class="text-center text-gray-500 text-sm py-2 px-4">
-        Tap a square when you find someone who matches it.
-    </p>
-
-    <!-- bingo banner (hidden until victory) -->
-    <div id="bingoBanner"
-         class="bg-amber-100 text-amber-800 text-center py-2 font-semibold text-sm"
-         style="display:none">
-        &#127881; BINGO! You got a line!
+    <!-- Bingo Banner (hidden until victory) -->
+    <div id="bingoBanner" class="bingo-banner"
+         style="display:none; animation: slideInFromTop 0.4s ease-out;">
+        BINGO · Você completou uma linha!
     </div>
 
-    <!-- the 5×5 grid -->
-    <div class="flex-1 flex items-center justify-center p-3">
-        <div id="gridContainer"
-             class="grid grid-cols-5 gap-1 w-full max-w-md mx-auto aspect-square">
+    <!-- Hint Text -->
+    <main class="board-area">
+        <div class="board-intro"><div><p class="section-kicker">Cartela de conexões</p><h2>Quem você ainda não conheceu?</h2></div><p class="board-hint">Selecione uma casa ao encontrar alguém que corresponda à frase.</p></div>
+
+    <!-- The 5×5 Grid -->
+        <div class="board-frame"><div id="gridContainer" class="board-grid">
             <!-- tiles injected by JS -->
-        </div>
+        </div></div>
+    </main>
+
+    <!-- Footer Info -->
+    <div class="game-footer">
+        <p>Uma linha completa encerra a rodada. Continue explorando as conexões.</p>
     </div>
 </div>
 
 <!-- ============================================================= -->
-<!--  VICTORY MODAL — overlays the board                            -->
+<!--  VICTORY MODAL — Celebration with confetti vibes              -->
 <!-- ============================================================= -->
-<div id="victoryOverlay"
-     class="fixed inset-0 bg-black\/50 flex items-center justify-center p-4 z-50"
+<div id="victoryOverlay" class="victory-overlay"
+     role="dialog" aria-modal="true" aria-labelledby="victoryTitle"
      style="display:none">
-    <div class="bg-white rounded-xl p-6 max-w-xs w-full text-center shadow-xl animate-[bounce_0.5s_ease-out]">
-        <div class="text-5xl mb-4">&#127881;</div>
-        <h2 class="text-3xl font-bold text-amber-500 mb-2">BINGO!</h2>
-        <p class="text-gray-600 mb-6">You completed a line!</p>
-        <button onclick="dismissVictoryModal()"
-                class="w-full bg-accent text-white font-semibold py-3 px-6 rounded-lg accent-active transition-colors">
-            Keep Playing
+    <div class="victory-modal">
+        <span class="victory-kicker">Linha concluída</span>
+        <h2 id="victoryTitle">BINGO!</h2>
+        <p>Você encontrou uma sequência de conexões.</p>
+        <div class="win-stat"><span class="win-stat-label">Linhas nesta rodada</span><span class="win-stat-value"><span id="winCount">1</span>/5</span></div>
+        <button id="continueButton" onclick="dismissVictoryModal()" class="primary-action">
+            Continuar jogando <span aria-hidden="true">→</span>
         </button>
     </div>
 </div>
@@ -115,16 +290,52 @@
     var bannerDiv  = document.getElementById("bingoBanner");
     var overlayDiv = document.getElementById("victoryOverlay");
 
+    /* ── DOM refs for progress tracking ──────────────────────── */
+    var markedCountEl = document.getElementById("markedCount");
+    var totalCountEl = document.getElementById("totalCount");
+    var progressBar = document.getElementById("progressBar");
+    var statusText = document.getElementById("statusText");
+    var winCountEl = document.getElementById("winCount");
+    var progressTrack = document.querySelector(".progress-track");
+    var launchButton = document.getElementById("launchButton");
+    var launchError = document.getElementById("launchError");
+    var continueButton = document.getElementById("continueButton");
+    var lastFocusedElement = null;
+    var winCount = 0;              /* Track multiple wins         */
+
     /* ── phase switching ──────────────────────────────────────── */
     function showPhase(phase) {
         currentPhase = phase;
         lobbyDiv.style.display   = (phase === "LOBBY") ? "" : "none";
         activeDiv.style.display  = (phase !== "LOBBY") ? "" : "none";
-        bannerDiv.style.display  = (streakFound)       ? "" : "none";
-        overlayDiv.style.display = (modalShown)        ? "" : "none";
+        bannerDiv.style.display  = (streakFound && phase !== "LOBBY") ? "" : "none";
+        overlayDiv.style.display = (modalShown && phase !== "LOBBY") ? "" : "none";
     }
 
-    /* ── board rendering ──────────────────────────────────────── */
+    /* ── update progress indicator ────────────────────────────– */
+    function updateProgress() {
+        var marked = liveTiles.filter(function(t) { return t.selected; }).length;
+        var percentage = (marked / TOTAL_CELLS) * 100;
+
+        markedCountEl.textContent = marked;
+        totalCountEl.textContent = TOTAL_CELLS;
+        progressBar.style.width = percentage + "%";
+        progressTrack.setAttribute("aria-valuenow", String(marked));
+
+        if (marked === TOTAL_CELLS) {
+            statusText.textContent = "Cartela completa.";
+        } else if (marked >= 20) {
+            statusText.textContent = "Quase lá. Continue procurando.";
+        } else if (marked >= 10) {
+            statusText.textContent = "Você está avançando bem.";
+        } else if (marked >= 5) {
+            statusText.textContent = "Bom começo. A conversa está fluindo.";
+        } else {
+            statusText.textContent = "Encontre pessoas que combinam com as frases.";
+        }
+    }
+
+    /* ── board rendering ──────────────────────────────────────– */
     function paintGrid() {
         gridDiv.innerHTML = "";
         var winIds = streakFound ? gatherStreakIds(streakFound) : {};
@@ -133,26 +344,27 @@
             var tile = liveTiles[t];
             var btn = document.createElement("button");
 
-            /* base styling identical to the original Blazor BingoSquare */
-            var base = "relative flex items-center justify-center p-1 text-center " +
-                       "border border-gray-300 rounded transition-all duration-150 " +
-                       "select-none min-h-[60px] text-xs leading-tight";
-
-            var state;
+            /* base styling with modern aesthetic */
+            var state = "board-tile";
             if (tile.selected) {
-                state = winIds[tile.id]
-                    ? "bg-amber-200 border-amber-400 text-amber-900"
-                    : "bg-marked border-marked-border text-green-800";
+                if (winIds[tile.id]) {
+                    state += " is-winning";
+                } else {
+                    state += " is-selected";
+                }
             } else {
-                state = "bg-white text-gray-700 tile-active";
+                if (tile.freeCell) {
+                    state += " is-free";
+                }
             }
 
-            var extra = tile.freeCell ? " font-bold text-sm" : "";
-            btn.className = base + " " + state + extra;
+            btn.className = state;
 
-            if (tile.freeCell) { btn.disabled = true; }
+            if (tile.freeCell) {
+                btn.disabled = true;
+            }
             btn.setAttribute("aria-pressed", String(tile.selected));
-            btn.setAttribute("aria-label", tile.freeCell ? "Free space" : tile.prompt);
+            btn.setAttribute("aria-label", tile.freeCell ? "Casa livre" : tile.prompt);
 
             /* inner label */
             var labelSpan = document.createElement("span");
@@ -160,12 +372,20 @@
             labelSpan.textContent = tile.prompt;
             btn.appendChild(labelSpan);
 
-            /* check-mark for marked non-free tiles */
+            /* check-mark for marked cells */
             if (tile.selected && !tile.freeCell) {
                 var tick = document.createElement("span");
-                tick.className = "absolute top-0.5 right-0.5 text-green-600 text-xs";
-                tick.textContent = "\u2713";
+                tick.className = "tile-status";
+                tick.textContent = "✓";
                 btn.appendChild(tick);
+            }
+
+            /* free cell badge */
+            if (tile.freeCell) {
+                var badge = document.createElement("span");
+                badge.className = "tile-status";
+                badge.textContent = "FREE";
+                btn.appendChild(badge);
             }
 
             /* click handler (closure over tile id) */
@@ -175,9 +395,11 @@
 
             gridDiv.appendChild(btn);
         }
+
+        updateProgress();
     }
 
-    /* ── tile tap logic ───────────────────────────────────────── */
+    /* ── tile tap logic ───────────────────────────────────────– */
     function onTileTapped(cellId) {
         liveTiles = flipTile(liveTiles, cellId);
 
@@ -185,6 +407,8 @@
             var detected = scanForStreak(liveTiles);
             if (detected) {
                 streakFound = detected;
+                winCount++;
+                winCountEl.textContent = winCount;
                 currentPhase = "VICTORY";
                 modalShown = true;
             }
@@ -259,14 +483,15 @@
         return lookup;
     }
 
-    /* ── localStorage persistence ─────────────────────────────── */
+    /* ── localStorage persistence ─────────────────────────────– */
     function persistSnapshot() {
         try {
             var blob = JSON.stringify({
                 phase: currentPhase,
                 tiles: liveTiles,
                 streak: streakFound,
-                modal: modalShown
+                modal: modalShown,
+                winCount: winCount
             });
             localStorage.setItem(PERSIST_KEY, blob);
         } catch (_) { /* storage full or unavailable */ }
@@ -281,6 +506,7 @@
             liveTiles   = snap.tiles;
             streakFound = snap.streak || null;
             modalShown  = !!snap.modal;
+            winCount    = snap.winCount || 0;
             currentPhase = snap.phase || "ACTIVE";
             return currentPhase !== "LOBBY";
         } catch (_) { return false; }
@@ -288,8 +514,14 @@
 
     /* ── public API (called from onclick attrs) ───────────────── */
     window.launchGame = function () {
+        launchButton.disabled = true;
+        launchButton.querySelector("span").textContent = "Carregando...";
+        launchError.style.display = "none";
         fetch("/api/bingo/fresh-board")
-            .then(function (resp) { return resp.json(); })
+            .then(function (resp) {
+                if (!resp.ok) { throw new Error("Falha ao carregar a cartela"); }
+                return resp.json();
+            })
             .then(function (cells) {
                 liveTiles   = cells;
                 streakFound = null;
@@ -298,6 +530,14 @@
                 persistSnapshot();
                 paintGrid();
                 showPhase("ACTIVE");
+            })
+            .catch(function () {
+                launchError.textContent = "Não foi possível carregar a cartela. Tente novamente.";
+                launchError.style.display = "block";
+            })
+            .finally(function () {
+                launchButton.disabled = false;
+                launchButton.querySelector("span").textContent = "Iniciar jogo";
             });
     };
 
@@ -306,20 +546,38 @@
         streakFound = null;
         modalShown  = false;
         currentPhase = "LOBBY";
+        winCount    = 0;
         persistSnapshot();
         showPhase("LOBBY");
     };
 
     window.dismissVictoryModal = function () {
+        streakFound = null;
         modalShown = false;
         overlayDiv.style.display = "none";
+        bannerDiv.style.display = "none";
         persistSnapshot();
+        paintGrid();
+        showPhase("ACTIVE");
+        if (lastFocusedElement) { lastFocusedElement.focus(); }
     };
 
-    /* ── boot ─────────────────────────────────────────────────── */
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && modalShown) { dismissVictoryModal(); }
+    });
+
+    var originalOnTileTapped = onTileTapped;
+    onTileTapped = function (cellId) {
+        lastFocusedElement = document.activeElement;
+        originalOnTileTapped(cellId);
+        if (modalShown) { continueButton.focus(); }
+    };
+
+    /* ── boot ─────────────────────────────────────────────────– */
     if (restoreSnapshot()) {
         paintGrid();
         showPhase(currentPhase);
+        winCountEl.textContent = winCount;
     } else {
         showPhase("LOBBY");
     }
